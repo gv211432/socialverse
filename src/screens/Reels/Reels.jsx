@@ -6,6 +6,7 @@ import { Text, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, { Easing, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import axiosInstance from '../../helpers/axiosInstance';
+import { Video, AVPlaybackStatus } from 'expo-av';
 import Example from './Ball';
 
 function worklet() {
@@ -15,46 +16,55 @@ function worklet() {
 
 const Reels = () => {
   const [data, setData] = useState([]);
+  const dataLength = useSharedValue(0);
   const apiCallCounter = useSharedValue(1);
-  function fetchData() {
-    console.warn("fetching..");
-    const result = axiosInstance.get(`/feed?page=${apiCallCounter.value}`);
-    result.then(res => {
-      apiCallCounter.value = apiCallCounter.value + 1;
-      if (res.status == 200) {
-        setData(p => [...p, ...res?.data?.posts]);
-        setAllowedReelCount(p => (p + res?.data?.posts?.length - 1));
-      }
-    });
-  };
-  useEffect(() => {
-    fetchData();
-    const fetchDataInterval = setInterval(() => {
-      if (swipeCount.value > (data.length - 2)) {
-        fetchData();
-      }
-    }, 2000);
-    return () => clearInterval(fetchDataInterval);
-  }, []);
-  // const height = Dimensions.get(window).height;
-
-
   const { height: SCREEN_HIGHT } = useWindowDimensions();
   const y = useSharedValue(0);
   const yCopy = useSharedValue(0);
   const preserveY = useSharedValue(0);
   const swipeCount = useSharedValue(0);
+  const [swipeCountState, setSwipeCountState] = useState(0);
   const [reelCount, setReelCount] = useState(0);
+  const animatedContainerRef = useRef();
+  const height = SCREEN_HIGHT;
+  const counterRef = useRef(0);
+  const [mainHeight, setMainHeight] = useState(null);
+  // const height = Dimensions.get(window).height;
+
+
   const animatedContainerStyle = useAnimatedStyle(() => ({
     transform: [{
       translateY: withTiming(y.value, { duration: 100, easing: Easing.linear })
     }]
   }));
-  const animatedContainerRef = useRef();
-  const height = SCREEN_HIGHT;
-  const counterRef = useRef(0);
-  const [allowedReelCount, setAllowedReelCount] = useState(0);
-  const [mainHeight, setMainHeight] = useState(null);
+
+  function fetchData() {
+    console.log("fetching..");
+    const result = axiosInstance.get(`/feed?page=${apiCallCounter.value}`);
+    result.then(res => {
+      apiCallCounter.value = apiCallCounter.value + 1;
+      if (res.status == 200) {
+        setData(p => [...p, ...res?.data?.posts]);
+        dataLength.value = dataLength.value + res?.data?.page_size;
+      }
+    });
+  };
+
+  useEffect(() => {
+    fetchData();
+    const fetchDataInterval = setInterval(() => {
+      console.log("COmpare", swipeCount.value, dataLength.value);
+      if (swipeCount.value > (dataLength.value - 3)) {
+        fetchData();
+      }
+    }, 2000);
+    return () => clearInterval(fetchDataInterval);
+  }, []);
+
+  useEffect(() => {
+
+  }, [swipeCountState]);
+
 
   const unlockGestureHandler = useAnimatedGestureHandler({
     onStart: (e) => {
@@ -68,22 +78,24 @@ const Reels = () => {
       // const height = animatedContainerRef.clientHeight;
       const height = mainHeight;
       y.value = preserveY.value;
-      console.log("e.translationY", e.translationY);
+      // console.log("e.translationY", e.translationY);
       const valY = Math.abs(y.value);
       const valYCopy = Math.abs(yCopy.value);
 
-      console.log("y.value", "yCopy", "height / 3", "height", "e.velocityY");
-      console.log(valY, valYCopy, valY + (height / 3), height, e.velocityY);
-      if ((swipeCount.value < allowedReelCount && swipeCount.value > 0)
-        || (swipeCount.value == allowedReelCount && e.velocityY > 0)
+      // console.log("y.value", "yCopy", "height / 3", "height", "e.velocityY");
+      // console.log(valY, valYCopy, valY + (height / 3), height, e.velocityY);
+      if ((swipeCount.value < dataLength.value && swipeCount.value > 0)
+        || (swipeCount.value == dataLength.value && e.velocityY > 0)
         || (swipeCount.value == 0 && e.velocityY < 0)
       ) {
         if ((e.velocityY < 0 && (valYCopy > (valY + (height / 3)))) || e.velocityY < -700) {
           y.value = withTiming(-(valY + height), { duration: 100 });
           swipeCount.value = swipeCount.value + 1;
+          runOnJS(setSwipeCountState)(swipeCount.value);
         } else if ((e.velocityY > 0 && (valYCopy > (valY + (height / 3)))) || e.velocityY > 700) {
           y.value = withTiming(-(valY - height), { duration: 100 });
           swipeCount.value = swipeCount.value - 1;
+          runOnJS(setSwipeCountState)(swipeCount.value);
         }
       }
     },
@@ -105,11 +117,26 @@ const Reels = () => {
       >
         <View style={{
           flex: 1,
-          height: "100%"
+          height: "100%",
+          justifyContent: "center"
         }}>
-          <Image
+          {/* <Image
             style={styles.image}
             source={d?.thumbnail_url}
+          /> */}
+          <Video
+            style={styles.video}
+            // source={{
+            //   uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
+            // }}
+            source={{
+              uri: d?.video_link,
+            }}
+            useNativeControls
+            resizeMode="contain"
+            isLooping
+            shouldPlay={swipeCount.value == i}
+          // onPlaybackStatusUpdate={() => ({ isPlaying: "Play" })}
           />
         </View>
       </Animated.View>);
@@ -158,9 +185,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0
   },
-  gestureAnimation: {
-
-  }
+  video: {
+    alignSelf: 'center',
+    width: "100%",
+    height: "100%",
+  },
 });
 
 
