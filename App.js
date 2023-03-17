@@ -10,10 +10,11 @@ import HomeScreen from './src/screens/Home/Home';
 import ReelsScreen from './src/screens/Reels/Reels';
 import UserScreen from './src/screens/User/User';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { Animated } from 'react-native';
+import { Animated, Button } from 'react-native';
 import WelcomeScreen from './src/screens/Welcome/Welcome';
 import { createStackNavigator } from '@react-navigation/stack';
 import Reels from './src/screens/Reels/Reels';
+import EventEmitter from "EventEmitter";
 
 // this code initializes the font awesome iocns
 config.autoAddCss = false;
@@ -23,18 +24,28 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const AppEvents = new EventEmitter();
   const [name, setName] = useState("Gaurav");
   const [isWelcome, setIsWelcome] = useState(1);
+  const [currentScreen, setCurrentScreen] = useState(null);
+
   useEffect(() => { setTimeout(() => setIsWelcome(0), 1500); }, []);
+
   return (
     <UserContext.Provider
       value={{
-        name, setName
+        name, setName,
+        currentScreen, setCurrentScreen,
+        AppEvents
       }}
     >
       {isWelcome ?
         <WelcomeScreen />
-        : <NavigationContainer>
+        : <NavigationContainer
+          onStateChange={(state) => {
+            setCurrentScreen(state);
+          }}
+        >
           <Tab.Navigator
             screenOptions={({ route }) => ({
               tabBarIcon: ({ focused, color, size }) => {
@@ -54,17 +65,33 @@ export default function App() {
                 }
 
                 // returning the actual icon
-                return (<FontAwesomeIcon
-                  size={30}
-                  icon={iconName}
-                />);
+                return (
+                  <FontAwesomeIcon
+                    size={30}
+                    icon={iconName}
+                    color={"#fff"}
+                  />
+                );
               },
-              tabBarActiveTintColor: 'tomato',
-              tabBarInactiveTintColor: 'gray',
+              tabBarActiveTintColor: '#fff',
+              tabBarInactiveTintColor: 'lightgrey',
+              tabBarStyle: {
+                backgroundColor: 'purple',
+              },
             })}
           >
             <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Reels" component={Reels} options={{ headerShown: false }} />
+            <Tab.Screen name="Reels" component={Reels}
+              options={{ headerShown: false }}
+              listeners={(nav, route) => ({
+                tabPress: e => {
+                  if (currentScreen?.index == 1) {
+                    console.log("Pressed again..");
+                    AppEvents.emit("refresh_reels_screen");
+                  }
+                }
+              })}
+            />
             <Tab.Screen name="User" component={UserScreen} />
           </Tab.Navigator>
         </NavigationContainer>}

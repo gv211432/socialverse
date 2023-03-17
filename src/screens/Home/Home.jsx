@@ -8,21 +8,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 // import { Image } from 'react-native';
 
 const Home = () => {
-  const { name } = useContext(UserContext);
+  const { name, currentScreen, setCurrentScreen } = useContext(UserContext);
   const [data, setData] = useState(null);
   const [fadeAnimation] = useState(new Animated.Value(0));
-  const fetchData = async () => {
-    const res = await axiosInstance.get("/feed?page=1");
-    if (res.status == 200) {
-      setData(res?.data);
-      Animated.timing(fadeAnimation, {
-        toValue: 1,
-        duration: 1500,
-        useNativeDriver: true
-      }).start();
-    }
-  };
-  // useEffect(() => { fetchData(); }, []);
+
+  useEffect(() => { setCurrentScreen("Home"); }, []);
 
   return (
     <Animated.View
