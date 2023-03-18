@@ -10,6 +10,7 @@ import { Video, AVPlaybackStatus, Audio } from 'expo-av';
 import Example from './Ball';
 import UserContext from '../../context/userContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import * as Progress from 'react-native-progress';
 
 const HeartComponent = ({ count = 0, liked = 0 }) => {
   const [on, setOn] = useState(liked ? 1 : 0);
@@ -70,12 +71,11 @@ const ShareComponent = ({ count = 0 }) => {
   </TouchableWithoutFeedback>);
 };
 
-const Reels = ({ navigation }) => {
+const Reels = ({ navigation, route }) => {
   const { currentScreen, AppEvents } = useContext(UserContext);
   const { height: SCREEN_HIGHT } = useWindowDimensions();
   const height = SCREEN_HIGHT;
   const counterRef = useRef(0);
-
   const [data, setData] = useState([]);
   const dataLength = useSharedValue(0);
   const apiCallCounter = useSharedValue(1);
@@ -101,8 +101,10 @@ const Reels = ({ navigation }) => {
     await AUDIO.unloadAsync();
   };
 
+  // attaching events on load and detaching on unload of screen
   useEffect(useCallback(() => {
-    AppEvents.on("refresh_reels_screen", () => {
+    // this event just brings the reels to the top, but not reload reels
+    AppEvents.on("refresh_reels_screen", (reload = false, firstDataToLoad = null) => {
       console.log("refresh_reels_screen");
       if (swipeCount.value > 10) {
         y.value = withTiming(0, { duration: 1000, easing: Easing.sin });
@@ -117,8 +119,17 @@ const Reels = ({ navigation }) => {
         swipeCount.value = 0;
         setSwipeCountState(0);
       }
+      if (reload && firstDataToLoad) {
+        console.warn("Reset and one reel load and more reels load");
+        swipeCount.value = 0;
+        dataLength.value = 1;
+        setData([firstDataToLoad]);
+        fetchData();
+      }
     });
-    return () => AppEvents.off("refresh_reels_screen");
+    return () => {
+      AppEvents.off("refresh_reels_screen");
+    };
   }));
 
   // will call on mounting of the screen component
@@ -154,6 +165,12 @@ const Reels = ({ navigation }) => {
   const animatedContainerStyle = useAnimatedStyle(() => ({
     transform: [{
       translateY: withTiming(y.value, { duration: 100, easing: Easing.linear })
+    }]
+  }));
+
+  const animatedSpinnerStyle = useAnimatedStyle(() => ({
+    transform: [{
+      scale: withTiming(y.value / 30, { duration: 100, easing: Easing.linear })
     }]
   }));
 
@@ -197,7 +214,7 @@ const Reels = ({ navigation }) => {
       }
     },
     onStart: (e) => {
-      console.log(e);
+      // console.log(e);
       isThisATap.value = true;
       preserveY.value = y.value;
     },
@@ -252,34 +269,51 @@ const Reels = ({ navigation }) => {
         setMainHeight(height);
         setMainWidth(width);
       }}
-      style={[styles.container, { backgroundColor: "black", paddingTop: 15 }]}>
+      style={[styles.container,
+      { backgroundColor: "black", paddingTop: 15 }
+      ]}>
       <View style={{ flex: 0.6 }}><Text>Hi</Text></View>
+      {/* <Animated.View style={[{
+        position: "absolute",
+        backgroundColor: "pink",
+        height: 30, width: "100%",
+        justifyContent: "center"
+      }, animatedSpinnerStyle]}>
+        <Text styl>Refresh</Text>
+      </Animated.View> */}
+
       {data?.map((d, i) => {
         return (<Animated.View
           key={i}
-          style={[styles.containerForAnimation, animatedContainerStyle, { backgroundColor: "black" }]}
+          style={[styles.containerForAnimation,
+            animatedContainerStyle,
+          { backgroundColor: "black" }]}
         >
           <View style={{
             flex: 1,
             height: "100%",
+            width: "100%",
             justifyContent: "center"
           }}>
             {((swipeCount.value == i || swipeCount.value == i - 1 || swipeCount.value == i + 1)
               && !reelLoaded) &&
               (
                 <Image
-                  style={[styles.image, { position: "absolute", }]}
+                  style={[styles.image, { position: "absolute", width: "100%", height: "100%" }]}
                   source={d?.thumbnail_url}
+                  contentFit={"fill"}
                 />
               )}
-
-            {(i <= swipeCount.value + 4 || i >= swipeCount.value - 4) && <Video
-              style={[styles.video, { height: mainHeight, width: mainWidth }]}
+            {(i <= swipeCount.value + 2 || i >= swipeCount.value - 2) && <Video
+              style={[styles.video, {
+                height: mainHeight,
+                width: mainWidth,
+              }]}
               source={{
                 uri: d?.video_link,
               }}
               useNativeControls={false}
-              resizeMode="contain"
+              resizeMode="cover"
               isLooping
               onLoad={(e) => {
                 // setReelLoaded(true);
@@ -288,8 +322,7 @@ const Reels = ({ navigation }) => {
             // onPlaybackStatusUpdate={() => ({ isPlaying: "Play" })}
             />}
           </View>
-
-          {/* pause icon for the reels */}
+          {/*====================== pause icon for the reels ======================*/}
           {!isPlaying && <View
             style={{ position: "absolute", left: "48%", top: "50%", }}
           >
@@ -301,8 +334,8 @@ const Reels = ({ navigation }) => {
             />
           </View>}
 
-          {/* some reel owners data */}
-          <View style={{
+          {/* ====================== some reel owners data ======================*/}
+          {/* <View style={{
             height: "20%",
             width: "80%",
             left: 5,
@@ -339,10 +372,10 @@ const Reels = ({ navigation }) => {
                 <Text style={{ color: "#fff", fontWeight: 40 }}>{d?.title}</Text>
               </View>
             </View>
-          </View>
+          </View> */}
 
-          {/* some reels controls for liking commenting sharing etc */}
-          <View style={{
+          {/*======= some reels controls for liking commenting sharing etc ======*/}
+          {/* <View style={{
             position: "absolute",
             bottom: 0,
             right: 0,
@@ -359,9 +392,14 @@ const Reels = ({ navigation }) => {
               color={"#fff"}
               style={{ marginBottom: 30 }}
             />
-          </View>
+          </View> */}
         </Animated.View>);
       })}
+      {/* {data?.length == 0 && <View style={{
+        flex: 1, height: "100%", width: "100%"
+      }}>
+        <Progress.CircleSnail color={['red', 'green', 'blue']} />
+      </View>} */}
       <PanGestureHandler onGestureEvent={unlockGestureHandler}
         style={{ backgroundColor: "pink" }}
       >
@@ -370,44 +408,6 @@ const Reels = ({ navigation }) => {
         >
         </Animated.View>
       </PanGestureHandler>
-      {/* controls for the reels  */}
-
-      {/* <View style={{
-        position: "absolute",
-        bottom: 0,
-        flex: 1,
-        flexDirection: "column",
-        height: "100%",
-        right: 0,
-        width: 60
-      }}>
-        {data?.map((d, i) => {
-          return (<Animated.View
-            key={i}
-            style={[styles.containerForAnimation, animatedContainerStyle,
-            {}]}
-          >
-            <View style={{
-              position: "absolute",
-              bottom: 0,
-              width: "100%",
-              alignItems: 'center',
-            }}>
-              <HeartComponent count={d?.upvote_count} liked={d?.upvoted} />
-              <MsgComponent count={d?.comment_count} />
-              <ShareComponent count={d?.share_count} />
-
-              <FontAwesomeIcon
-                size={40}
-                icon={"fa-solid fa-ellipsis"}
-                color={"#fff"}
-                style={{ marginBottom: 30 }}
-              />
-            </View>
-          </Animated.View>);
-        })}
-      </View> */}
-
       <StatusBar style='light' backgroundColor='purple' />
     </GestureHandlerRootView>);
 };
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "83%",
     height: "100%",
-    backgroundColor: "#ffffffa0",
+    // backgroundColor: "#ffffffa0",
     bottom: 0,
     left: 0
   },
