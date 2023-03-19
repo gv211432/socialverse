@@ -72,12 +72,12 @@ const ShareComponent = ({ count = 0 }) => {
 };
 
 const Reels = ({ navigation, route }) => {
-  const { currentScreen, AppEvents } = useContext(UserContext);
+  const { currentScreen, AppEvents, isOpeningUserScreen, setIsOpeningUserScreen, } = useContext(UserContext);
   const { height: SCREEN_HIGHT } = useWindowDimensions();
   const height = SCREEN_HIGHT;
   const counterRef = useRef(0);
   const [data, setData] = useState([]);
-  const dataLength = useSharedValue(0);
+  const dataLength = useSharedValue(1);
   const apiCallCounter = useSharedValue(1);
   const y = useSharedValue(0);
   const yCopy = useSharedValue(0);
@@ -114,10 +114,16 @@ const Reels = ({ navigation, route }) => {
         y.value = withTiming(0, { duration: 500, easing: Easing.sin });
         swipeCount.value = 0;
         setTimeout(() => setSwipeCountState(0), 500);
-      } else {
+      } else if (swipeCount.value > 0) {
         y.value = withTiming(0, { duration: 300, easing: Easing.sin });
         swipeCount.value = 0;
         setSwipeCountState(0);
+      } else {
+        // reload the data of reels in the case
+        swipeCount.value = 0;
+        dataLength.value = 1;
+        setData([]);
+        fetchData();
       }
       if (reload && firstDataToLoad) {
         console.warn("Reset and one reel load and more reels load");
@@ -137,16 +143,16 @@ const Reels = ({ navigation, route }) => {
     stopOtherSoundSource();
     console.log("Reels screen Loaded");
     fetchData(); // initial fetching of data
-    const fetchDataInterval = setInterval(() => {
-      console.log("COmpare", swipeCount.value, dataLength.value);
-      if (swipeCount.value > (dataLength.value - 3)) {
-        fetchData();
-      }
-    }, 2000);
-    return () => {
-      clearInterval(fetchDataInterval);
-      console.log("Reels screen Unloaded");
-    };
+    // const fetchDataInterval = setInterval(() => {
+    //   console.log("COmpare", swipeCount.value, dataLength.value);
+    //   if (swipeCount.value > (dataLength.value - 3)) {
+    //     fetchData();
+    //   }
+    // }, 2000);
+    // return () => {
+    //   clearInterval(fetchDataInterval);
+    //   console.log("Reels screen Unloaded");
+    // };
   }, []);
 
   // listening to ccurrentScreen state
@@ -249,6 +255,10 @@ const Reels = ({ navigation, route }) => {
           runOnJS(setSwipeCountState)(swipeCount.value);
           runOnJS(setReelLoaded)(false);
         }
+        // if only two reels are left, please load more
+        if (swipeCount.value > (dataLength.value - 3)) {
+          runOnJS(fetchData)();
+        }
       } else if (e.velocityY > 700) {
         if (swipeCount.value == 0) {
           dataLength.value = 0;
@@ -299,35 +309,44 @@ const Reels = ({ navigation, route }) => {
               && !reelLoaded) &&
               (
                 <Image
-                  style={[styles.image, { position: "absolute", width: "100%", height: "100%" }]}
+                  style={[styles.image, {
+                    position: "absolute",
+                    width: "100%", height: "100%"
+                  }]}
                   source={d?.thumbnail_url}
                   contentFit={"fill"}
                 />
               )}
-            {(i <= swipeCount.value + 2 || i >= swipeCount.value - 2) && <Video
-              style={[styles.video, {
-                height: mainHeight,
-                width: mainWidth,
-              }]}
-              source={{
-                uri: d?.video_link,
-              }}
-              useNativeControls={false}
-              resizeMode="cover"
-              isLooping
-              onLoad={(e) => {
-                // setReelLoaded(true);
-              }}
-              shouldPlay={(swipeCount.value == i) && isPlaying}
-            // onPlaybackStatusUpdate={() => ({ isPlaying: "Play" })}
-            />}
+            {(i <= swipeCount.value + 2 || i >= swipeCount.value - 2)
+              && <Video
+                style={[styles.video, {
+                  height: mainHeight,
+                  width: mainWidth,
+                  // translate: { scale: (swipeCount.value == i) && isPlaying ? 1.5 : 1 }
+                }]}
+                source={{
+                  uri: d?.video_link,
+                }}
+                useNativeControls={false}
+                resizeMode="cover"
+                isLooping
+                onLoad={(e) => {
+                  // setReelLoaded(true);
+                }}
+                shouldPlay={(swipeCount.value == i) && isPlaying}
+              // onPlaybackStatusUpdate={() => ({ isPlaying: "Play" })}
+              />}
           </View>
           {/*====================== pause icon for the reels ======================*/}
           {!isPlaying && <View
-            style={{ position: "absolute", left: "48%", top: "50%", }}
+            style={{
+              position: "absolute",
+              left: mainWidth / 2 - 25,
+              top: mainHeight / 2 - 25,
+            }}
           >
             <FontAwesomeIcon
-              size={50}
+              size={70}
               icon={"fa-solid fa-play"}
               color={"#fff"}
               style={{ marginBottom: 20, opacity: 0.8 }}
@@ -395,11 +414,16 @@ const Reels = ({ navigation, route }) => {
           </View> */}
         </Animated.View>);
       })}
-      {/* {data?.length == 0 && <View style={{
-        flex: 1, height: "100%", width: "100%"
-      }}>
-        <Progress.CircleSnail color={['red', 'green', 'blue']} />
-      </View>} */}
+      {
+        data?.length == 0 &&
+        <Progress.CircleSnail
+          style={{
+            position: "absolute",
+            left: mainWidth / 2 - 35, top: mainHeight / 2 - 10,
+          }}
+          size={70}
+          color={['white', 'purple']} />
+      }
       <PanGestureHandler onGestureEvent={unlockGestureHandler}
         style={{ backgroundColor: "pink" }}
       >
@@ -408,6 +432,19 @@ const Reels = ({ navigation, route }) => {
         >
         </Animated.View>
       </PanGestureHandler>
+
+      {/* modal for user login */}
+      {isOpeningUserScreen && <View style={{
+        position: "absolute", bottom: 0,
+        height: 150, width: "100%",
+        backgroundColor: "white",
+        borderTopRightRadius: 30,
+        borderTopLeftRadius: 30
+      }}>
+        <Text>Gello</Text>
+        <Button title={"Close"} onPress={() => setIsOpeningUserScreen(false)} />
+      </View>}
+
       <StatusBar style='light' backgroundColor='purple' />
     </GestureHandlerRootView>);
 };
@@ -421,7 +458,7 @@ const styles = StyleSheet.create({
   containerForAnimation: {
     flex: 0,
     // backgroundColor: '#fff',
-    height: "101%",
+    height: "101.2%",
     marginVertical: 3,
   },
   image: {

@@ -44,10 +44,10 @@ export default function App() {
     }
   });
 
-  // useEffect(() => {
-  //   fetchData();
-  //   setTimeout(() => setIsWelcome(0), 1500);
-  // }, []);
+  useEffect(() => {
+    fetchData();
+    setTimeout(() => setIsWelcome(0), 1900);
+  }, []);
 
   return (
     <UserContext.Provider
