@@ -7,7 +7,6 @@ import { Gesture, GestureDetector, GestureHandlerRootView, PanGestureHandler, Ta
 import Animated, { Easing, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import axiosInstance from '../../helpers/axiosInstance';
 import { Video, AVPlaybackStatus, Audio } from 'expo-av';
-import Example from './Ball';
 import UserContext from '../../context/userContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import * as Progress from 'react-native-progress';
@@ -98,6 +97,7 @@ const Reels = ({ navigation, route }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isReelOpen, setIsReelOpen] = useState(false);
   const videosLoadedRef = useRef(new Set());
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
   // const height = Dimensions.get(window).height;
 
   // stop another sounds before playing reels
@@ -149,6 +149,7 @@ const Reels = ({ navigation, route }) => {
     console.log("Reels screen Loaded");
     fetchData(); // initial fetching of data
     setTimeout(() => navigation.navigate("Home"), 1500);
+    setIsFirstLoad(false);
   }, []);
 
   // listening to ccurrentScreen state
@@ -258,8 +259,8 @@ const Reels = ({ navigation, route }) => {
         }
 
         loadedVideosTill.value = Math.max(loadedVideosTill.value, swipeCount.value);
-        unloadedVideosFrom.value = swipeCount.value - 8 >= 0
-          ? Math.max(unloadedVideosFrom.value, swipeCount.value - 8)
+        unloadedVideosFrom.value = swipeCount.value - 4 >= 0
+          ? Math.max(unloadedVideosFrom.value, swipeCount.value - 4)
           : 0;
 
         console.log(
@@ -297,15 +298,6 @@ const Reels = ({ navigation, route }) => {
         { backgroundColor: "black", paddingTop: 15 }
         ]}>
         <View style={{ flex: 0.6 }}><Text>Hi</Text></View>
-        {/* <Animated.View style={[{
-        position: "absolute",
-        backgroundColor: "pink",
-        height: 30, width: "100%",
-        justifyContent: "center"
-      }, animatedSpinnerStyle]}>
-        <Text styl>Refresh</Text>
-      </Animated.View> */}
-
         {data?.map((d, i) => {
           return (<Animated.View
             key={i}
@@ -339,9 +331,10 @@ const Reels = ({ navigation, route }) => {
                 //   || (i <= swipeCount.value + 2 && i >= swipeCount.value - 2))
                 // (swipeCountPrevious.value > swipeCount.value && i <= Math.max(loadedVideosTill.value, swipeCount.value + 2) && i >= Math.min(unloadedVideosFrom.value, swipeCount.value - 8))
                 // || (swipeCountPrevious.value < swipeCount.value && i <= swipeCount.value + 2 && i >= swipeCount.value - 8)
-
+                (isFirstLoad && i <= swipeCount.value + 4) ||
                 (i <= loadedVideosTill.value && i >= unloadedVideosFrom.value)
                 || (i <= swipeCount.value + 2 && i >= swipeCount.value - 2)
+
               ) && <Video
                   style={[styles.video, {
                     height: mainHeight,
@@ -463,20 +456,9 @@ const Reels = ({ navigation, route }) => {
           </Animated.View>
         </PanGestureHandler>
 
-        {/* modal for user login */}
-        {isOpeningUserScreen && <View style={{
-          position: "absolute", bottom: 0,
-          height: 150, width: "100%",
-          backgroundColor: "white",
-          borderTopRightRadius: 30,
-          borderTopLeftRadius: 30
-        }}>
-          <Text>Gello</Text>
-          <Button title={"Close"} onPress={() => setIsOpeningUserScreen(false)} />
-        </View>}
-
         <StatusBar style='light' backgroundColor='purple' />
-        {<UserSignupPopup />}
+        {/* modal for user login */}
+        <UserSignupPopup />
       </GestureHandlerRootView>
     </View>
   );

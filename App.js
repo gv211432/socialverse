@@ -97,6 +97,7 @@ export default function App() {
             tabBarStyle: {
               backgroundColor: 'purple',
             },
+          
           })}
         >
           <Tab.Screen name="Home" component={HomeScreen}

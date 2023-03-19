@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import {
   Button, FlatList, ScrollView, StyleSheet,
-  Text, TouchableOpacity, View
+  Text, TouchableOpacity, View, TextInput
 } from 'react-native';
 import UserContext from '../../context/userContext';
 import axiosInstance from '../../helpers/axiosInstance';
@@ -15,6 +15,7 @@ const Home = ({ navigation }) => {
   const { homeData, AppEvents } = useContext(UserContext);
   //lading first 12 items in the list 
   const [data, setData] = useState(homeData.slice(0, 12));
+  const [serachText, setSearchText] = useState("");
 
   // this code is called for extra data list data is loading
   const loadDataInBatch = () => {
@@ -119,14 +120,85 @@ const Home = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <View style={{
+        flex: 1,
+        position: "absolute",
+        top: 30,
+        width: "100%",
+        height: 70,
+        backgroundColor: "black",
+        zIndex: 9,
+        flexDirection: "row"
+      }}>
+        <TextInput
+          style={{
+            justifyContent: "center",
+            height: 50,
+            top: 10,
+            left: 10,
+            width: "60%",
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: "white",
+            backgroundColor: "#202124",
+            color: "#fff",
+            padding: 5,
+            fontSize: 20
+          }}
+          onChangeText={setSearchText}
+          value={serachText}
+          placeholder="Search"
+        />
+        <TouchableOpacity
+          style={{
+            justifyContent: "center",
+            height: 50,
+            top: 10,
+            left: 5,
+            width: "15%",
+            borderRadius: 10,
+            borderWidth: 1,
+            marginHorizontal: 10,
+            marginLeft: 15,
+            borderColor: "white",
+            backgroundColor: "#202124",
+            alignItems: "center"
+          }}
+        >
+          <FontAwesomeIcon
+            style={{ color: "white" }}
+            size={30}
+            icon={"fa-solid fa-table-cells-large"}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            justifyContent: "center",
+            height: 50,
+            top: 10,
+            left: 5,
+            width: "15%",
+            marginRight: 10,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: "white",
+            backgroundColor: "#202124",
+            alignItems: "center"
+          }}
+        >
+          <FontAwesomeIcon
+            style={{ color: "white" }}
+            size={30}
+            icon={"fa-solid fa-earth-europe"}
+          />
+        </TouchableOpacity>
+      </View>
       {data.length ? <FlatList
         style={{
           flex: 1,
           width: "97%",
-          paddingTop: 10,
+          paddingTop: 100,
         }}
-        // data={[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
-        // data={[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
         data={data}
         renderItem={UserNameItem}
         keyExtractor={item => item.key}
@@ -138,7 +210,7 @@ const Home = ({ navigation }) => {
       /> :
         <FlatList
           style={{
-            paddingTop: 10,
+            paddingTop: 35,
             flex: 1,
             width: "97%"
           }}
