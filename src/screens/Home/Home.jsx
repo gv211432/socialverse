@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import {
-  Animated, FlatList, ScrollView, StyleSheet,
+  Animated, Button, FlatList, ScrollView, StyleSheet,
   Text, TouchableOpacity, View
 } from 'react-native';
 import UserContext from '../../context/userContext';
@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { cond, withTiming } from 'react-native-reanimated';
 
 const Home = ({ navigation }) => {
-  const { name, homeData, AppEvents } = useContext(UserContext);
+  const { name, homeData, AppEvents, isOpeningUserScreen, setIsOpeningUserScreen, } = useContext(UserContext);
   const [data, setData] = useState(homeData.slice(0, 12));
 
   // this code is called for extra data list data is loading
@@ -114,7 +114,6 @@ const Home = ({ navigation }) => {
   });
 
   return (
-
     <View style={styles.container}>
       {data.length ? <FlatList
         style={{
@@ -145,6 +144,16 @@ const Home = ({ navigation }) => {
         />}
       {/* <Text>Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis, veniam placeat ducimus soluta assumenda quos culpa fugiat necessitatibus reprehenderit voluptatum pariatur non deserunt. Quia, inventore ullam dolore tempora earum rerum?</Text> */}
       <StatusBar style="light" backgroundColor='purple' />
+      {isOpeningUserScreen && <View style={{
+        position: "absolute", bottom: 0,
+        height: 150, width: "100%",
+        backgroundColor: "white",
+        borderTopRightRadius: 30,
+        borderTopLeftRadius: 30
+      }}>
+        <Text>Gello</Text>
+        <Button title={"Close"} onPress={() => setIsOpeningUserScreen(false)} />
+      </View>}
     </View>
   );
 };

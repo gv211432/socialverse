@@ -31,6 +31,7 @@ export default function App() {
   const [isWelcome, setIsWelcome] = useState(1);
   const [currentScreen, setCurrentScreen] = useState(null);
   const [homeData, setHomeData] = useState([]);
+  const [isOpeningUserScreen, setIsOpeningUserScreen] = useState(false);
 
   // this function fetchs the api data for unique pages but randomly
   // it receives 5 reels per page
@@ -43,10 +44,10 @@ export default function App() {
     }
   });
 
-  useEffect(() => {
-    fetchData();
-    setTimeout(() => setIsWelcome(0), 1500);
-  }, []);
+  // useEffect(() => {
+  //   fetchData();
+  //   setTimeout(() => setIsWelcome(0), 1500);
+  // }, []);
 
   return (
     <UserContext.Provider
@@ -54,7 +55,8 @@ export default function App() {
         name, setName,
         currentScreen, setCurrentScreen,
         AppEvents,
-        homeData, setHomeData
+        homeData, setHomeData,
+        isOpeningUserScreen, setIsOpeningUserScreen,
       }}
     >
       {isWelcome ?
@@ -111,7 +113,15 @@ export default function App() {
                 }
               })}
             />
-            <Tab.Screen name="User" component={UserScreen} />
+            <Tab.Screen name="User"
+              component={UserScreen}
+              listeners={(nav, route) => ({
+                tabPress: e => {
+                  e.preventDefault();
+                  setIsOpeningUserScreen(true);
+                }
+              })}
+            />
           </Tab.Navigator>
         </NavigationContainer>}
     </UserContext.Provider>
