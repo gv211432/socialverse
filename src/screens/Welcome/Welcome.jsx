@@ -13,7 +13,7 @@ const Welcome = () => {
     () => {
       Animated.timing(
         progress,
-        { toValue: 1, duration: 5000, easing: Easing.linear, useNativeDriver: Platform.OS !== "web" },
+        { toValue: 1, duration: 4000, easing: Easing.linear, useNativeDriver: Platform.OS !== "web" },
       ).start();
     },
     [progress],

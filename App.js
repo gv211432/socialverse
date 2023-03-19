@@ -22,12 +22,11 @@ import axios from 'axios';
 config.autoAddCss = false;
 library.add(far, fas);
 
-const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export default function App() {
   const AppEvents = new EventEmitter();
-  const [name, setName] = useState("Gaurav");
+  const [name, setName] = useState("");
   const [isWelcome, setIsWelcome] = useState(1);
   const [currentScreen, setCurrentScreen] = useState(null);
   const [homeData, setHomeData] = useState([]);
@@ -46,7 +45,7 @@ export default function App() {
 
   useEffect(() => {
     fetchData();
-    setTimeout(() => setIsWelcome(0), 1900);
+    setTimeout(() => setIsWelcome(0), 2200);
   }, []);
 
   return (
@@ -59,71 +58,84 @@ export default function App() {
         isOpeningUserScreen, setIsOpeningUserScreen,
       }}
     >
-      {isWelcome ?
-        <WelcomeScreen />
-        : <NavigationContainer
-          onStateChange={(state) => {
-            setCurrentScreen(state);
-          }}
-        >
-          <Tab.Navigator
-            screenOptions={({ route }) => ({
-              tabBarIcon: ({ focused, color, size }) => {
-                let iconName;
-                if (route.name === 'Home') {
-                  iconName = focused
-                    ? 'fa-solid fa-house'
-                    : 'fa-solid fa-house';
-                } else if (route.name === 'Reels') {
-                  iconName = focused
-                    ? 'fa-solid fa-file-video'
-                    : 'fa-regular fa-file-video';
-                } else {
-                  iconName = focused
-                    ? 'fa-solid fa-circle-user'
-                    : 'fa-regular fa-circle-user';
-                }
+      {isWelcome == 1 && <WelcomeScreen />}
+      <NavigationContainer
+        onStateChange={(state) => {
+          setCurrentScreen(state);
+        }}
+      >
+        <Tab.Navigator
+          initialRouteName='Reels'
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+              if (route.name === 'Home') {
+                iconName = focused
+                  ? 'fa-solid fa-house'
+                  : 'fa-solid fa-house';
+              } else if (route.name === 'Reels') {
+                iconName = focused
+                  ? 'fa-solid fa-file-video'
+                  : 'fa-regular fa-file-video';
+              } else {
+                iconName = focused
+                  ? 'fa-solid fa-circle-user'
+                  : 'fa-regular fa-circle-user';
+              }
 
-                // returning the actual icon
-                return (
-                  <FontAwesomeIcon
-                    size={30}
-                    icon={iconName}
-                    color={"#fff"}
-                  />
-                );
-              },
-              tabBarActiveTintColor: '#fff',
-              tabBarInactiveTintColor: 'lightgrey',
-              tabBarStyle: {
-                backgroundColor: 'purple',
-              },
+              // returning the actual icon
+              return (
+                <FontAwesomeIcon
+                  size={30}
+                  icon={iconName}
+                  color={"#fff"}
+                />
+              );
+            },
+            tabBarActiveTintColor: '#fff',
+            tabBarInactiveTintColor: 'lightgrey',
+            tabBarStyle: {
+              backgroundColor: 'purple',
+            },
+          })}
+        >
+          <Tab.Screen name="Home" component={HomeScreen}
+            options={{ headerShown: false }}
+            listeners={(nav, route) => ({
+              tabPress: e => {
+                if (currentScreen?.index == 0) {
+                  // setName("Home");
+                }
+              }
             })}
-          >
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Reels" component={Reels}
-              options={{ headerShown: false }}
-              listeners={(nav, route) => ({
-                tabPress: e => {
-                  if (currentScreen?.index == 1) {
-                    console.log("Pressed again..");
-                    AppEvents.emit("refresh_reels_screen");
-                  }
-                  AppEvents.emit("router_state_update", currentScreen);
+          />
+          <Tab.Screen name="Reels" component={Reels}
+            options={{ headerShown: false }}
+            listeners={(nav, route) => ({
+              tabPress: e => {
+                if (currentScreen?.index == 1) {
+                  console.log("Pressed again..");
+                  // setName("Reels");
+                  AppEvents.emit("refresh_reels_screen");
                 }
-              })}
-            />
-            <Tab.Screen name="User"
-              component={UserScreen}
-              listeners={(nav, route) => ({
-                tabPress: e => {
-                  e.preventDefault();
-                  setIsOpeningUserScreen(true);
+                AppEvents.emit("router_state_update", currentScreen);
+              }
+            })}
+          />
+          <Tab.Screen name="User"
+            component={UserScreen}
+            listeners={(nav, route) => ({
+              tabPress: e => {
+                e.preventDefault();
+                setIsOpeningUserScreen(true);
+                if (currentScreen?.index == 1) {
+                  // setName("User");
                 }
-              })}
-            />
-          </Tab.Navigator>
-        </NavigationContainer>}
+              }
+            })}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
     </UserContext.Provider>
   );
 }
