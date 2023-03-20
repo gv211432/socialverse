@@ -1,26 +1,27 @@
-![GitHub](https://img.shields.io/github/license/GV211432/box-office) ![GitHub issues](https://img.shields.io/github/issues-raw/GV211432/box-office) ![GitHub Repo stars](https://img.shields.io/github/stars/GV211432/box-office?style=social)
+![GitHub](https://img.shields.io/github/license/GV211432/socialverse) ![GitHub issues](https://img.shields.io/github/issues-raw/GV211432/socialverse) ![GitHub Repo stars](https://img.shields.io/github/stars/GV211432/socialverse?style=social)
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://gauravs-box-office.surge.sh">
-    <img src="./README-SRC/logo.png" alt="Logo" width="120" height="120" >
+    <img src="./assets/icon.png" alt="Logo" width="120" height="120" >
   </a>
   
   <h3 align="center"><b>SOCIALVERSE</b></h3>
 
   <p align="center">
     This app is a scocialmeadia platform, this allows you to watch reels.
-    This is developed by me as an assignment from Persist Ventures.
+    This is developed by me as an assignment from Persist Ventures. Load balancing
+    between both UI and JS thread is taken care to make it more robust.
     <br />
     <a href="#"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://gauravs-box-office.surge.sh" style="color:orange; font-weight:bold">Download the App</a>
+    <a href="https://socialverse.surge.sh/socialverse" style="color:orange; font-weight:bold">Download the App</a>
     ·
-    <a href="https://github.com/gv211432/box-office/issues">Report Bug</a>
+    <a href="https://github.com/gv211432/socialverse/issues">Report Bug</a>
     ·
-    <a href="https://github.com/gv211432/box-office/issues">Request Feature</a>
+    <a href="https://github.com/gv211432/socialverse/issues">Request Feature</a>
   </p>
 </div>
 
@@ -30,15 +31,24 @@
 
 <br>
 
-![title](./README-SRC/title.png)
+![title](./assets/name.png)
 <br>
 
-Box Office Movie Search is a content speciﬁc search engine with the aim to retrieve movie information given the contents of a user's query. The search engine relies on the OkapiBM25 algorithm and takes into consideration the text present in the overview, the title, the names of the cast, and the production companies of each movie.
+This version has optimized loading and smart unloading feature which allows you to
+seemlessly keep scrolling and watch the reels.
 
 This project is developed by [me](https://github.com/gv211432).
+and Provided by Persist Ventures
 
-![intro](./README-SRC/box-home.png)
+<div style="display=inline;">
 
+<img src="./assets/1.jpeg" alt="Logo" width="120" height="240" >
+<img src="./assets/2.jpeg" alt="Logo" width="120" height="240" >
+<img src="./assets/3.jpeg" alt="Logo" width="120" height="240" >
+<img src="./assets/4.jpeg" alt="Logo" width="120" height="240" >
+<img src="./assets/5.jpeg" alt="Logo" width="120" height="240" >
+<img src="./assets/6.jpeg" alt="Logo" width="120" height="240" >
+</div>
 <br>
 <br>
 
@@ -47,13 +57,13 @@ This project is developed by [me](https://github.com/gv211432).
 ### 1. Clone this repository
 
 ```js
-git clone https://github.com/gv211432/box-office.git
+git clone https://github.com/gv211432/socialverse.git
 ```
 
-### 2. Open the directory `tictactoe`
+### 2. Open the directory `socialverse`
 
 ```
-cd box-office
+cd socialverse
 ```
 
 ### 3. Then follow the following
@@ -69,7 +79,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `yarn start`
+### `yarn android`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
@@ -77,12 +87,12 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
-### `yarn test`
+### `eas build -p android --profile preview`
 
-Launches the test runner in the interactive watch mode.\
+Builds using expo application servers.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `yarn build`
+### `expo run:build`
 
 Builds the app for production to the `build` folder.\
 It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -110,15 +120,9 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 <br>
 
-# More snaps
-
-![starred](./README-SRC/box-starred.png)
-![more](./README-SRC/more1.png)
-![more](./README-SRC/more.png)
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 📖 License
 
 Licence details are given here.
-[MIT](https://github.com/gv211432/box-office/blob/main/LICENSE)
+[MIT](https://github.com/gv211432/socialverse/blob/main/LICENSE)
