@@ -17,7 +17,7 @@
     <a href="#"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://socialverse.surge.sh/socialverse" style="color:orange; font-weight:bold">Download the App</a>
+    <a href="./build/application-478cbd3a-b3d8-49c3-ab10-375aef79cca8.apk" style="color:orange; font-weight:bold">Download the App</a>
     ·
     <a href="https://github.com/gv211432/socialverse/issues">Report Bug</a>
     ·
