@@ -299,143 +299,165 @@ const Reels = ({ navigation, route }) => {
         ]}>
         <View style={{ flex: 0.6 }}><Text>Hi</Text></View>
         {data?.map((d, i) => {
-          return (<Animated.View
-            key={i}
-            style={[styles.containerForAnimation,
-              animatedContainerStyle,
-            { backgroundColor: "black" }]}
-          >
-            <View style={{
-              flex: 1,
-              height: "100%",
-              width: "100%",
-              justifyContent: "center"
-            }}>
-              {((i <= swipeCount.value + 2 && i >= swipeCount.value - 2)
-                && !reelLoaded) &&
-                (
-                  <Image
-                    style={[styles.image, {
-                      position: "absolute",
-                      width: "100%", height: "100%"
-                    }]}
-                    source={d?.thumbnail_url}
-                    contentFit={"fill"}
-                    onLoad={() => { console.log("Img loaded", i); }}
-                  />
-                )}
-              {(
-                // Boolen algebra for rendering videos
-                // (
-                // (!isPlaying && i <= swipeCount.value + 4 && i >= swipeCount.value - 2)
-                //   || (i <= swipeCount.value + 2 && i >= swipeCount.value - 2))
-                // (swipeCountPrevious.value > swipeCount.value && i <= Math.max(loadedVideosTill.value, swipeCount.value + 2) && i >= Math.min(unloadedVideosFrom.value, swipeCount.value - 8))
-                // || (swipeCountPrevious.value < swipeCount.value && i <= swipeCount.value + 2 && i >= swipeCount.value - 8)
-                (isFirstLoad && i <= swipeCount.value + 4) ||
-                (i <= loadedVideosTill.value && i >= unloadedVideosFrom.value)
-                || (i <= swipeCount.value + 2 && i >= swipeCount.value - 2)
+          return (
+            (
+              // Boolen algebra for rendering videos
+              // (
+              // (!isPlaying && i <= swipeCount.value + 4 && i >= swipeCount.value - 2)
+              //   || (i <= swipeCount.value + 2 && i >= swipeCount.value - 2))
+              // (swipeCountPrevious.value > swipeCount.value && i <= Math.max(loadedVideosTill.value, swipeCount.value + 2) && i >= Math.min(unloadedVideosFrom.value, swipeCount.value - 8))
+              // || (swipeCountPrevious.value < swipeCount.value && i <= swipeCount.value + 2 && i >= swipeCount.value - 8)
+              (isFirstLoad && i <= swipeCount.value + 4) || //for first loading while welcome screen is shown
+              (i <= loadedVideosTill.value && i >= unloadedVideosFrom.value)
+              || (i <= swipeCount.value + 2 && i >= swipeCount.value - 2)
 
-              ) && <Video
-                  style={[styles.video, {
-                    height: mainHeight,
-                    width: mainWidth,
-                    // translate: { scale: (swipeCount.value == i) && isPlaying ? 1.5 : 1 }
-                  }]}
-                  source={{
-                    uri: d?.video_link,
-                  }}
-                  useNativeControls={false}
-                  resizeMode="cover"
-                  isLooping
-                  onLoadStart={(e) => {
-                    // setReelLoaded(true);
-                    videosLoadedRef.current.add(i);
-                    loadedVideosTill.value = Math.max(loadedVideosTill.value, i);
-                    console.log("Loading video", i);
-                  }}
-                  onLoad={(e) => {
-                    console.log("Video loaded..", i);
-                  }}
-                  shouldPlay={(swipeCount.value == i) && isPlaying}
-                // onPlaybackStatusUpdate={() => ({ isPlaying: "Play" })}
-                />}
-            </View>
-            {/*====================== pause icon for the reels ======================*/}
-            {!isPlaying && <View
-              style={{
-                position: "absolute",
-                left: mainWidth / 2 - 25,
-                top: mainHeight / 2 - 25,
-              }}
-            >
-              <FontAwesomeIcon
-                size={70}
-                icon={"fa-solid fa-play"}
-                color={"#fff"}
-                style={{ marginBottom: 20, opacity: 0.8 }}
-              />
-            </View>}
-
-            {/* ====================== some reel owners data ======================*/}
-            <View style={{
-              height: "20%",
-              width: "80%",
-              left: 5,
-              bottom: 0,
-              position: "absolute"
-            }}>
-              <View
-                style={{
-                  left: 5,
-                  bottom: 50,
-                  position: "absolute"
-                }}
+            ) ?
+              <Animated.View
+                key={i}
+                style={[styles.containerForAnimation,
+                  animatedContainerStyle,
+                {
+                  backgroundColor: "black",
+                  // marginTop: swipeCount.value == i ? swipeCount.value * mainHeight : "auto"
+                }]}
               >
-                <View style={{ borderRadius: 25, flexDirection: "row", alignItems: "center" }}>
-                  <Image source={d?.picture_url}
-                    style={{ height: 50, width: 50, borderRadius: 25, marginRight: 6 }}
+                <View style={{
+                  flex: 1,
+                  height: "100%",
+                  width: "100%",
+                  justifyContent: "center"
+                }}>
+                  {((i <= swipeCount.value + 2 && i >= swipeCount.value - 2)
+                    && !reelLoaded) &&
+                    (
+                      <Image
+                        style={[styles.image, {
+                          position: "absolute",
+                          width: "100%", height: "100%"
+                        }]}
+                        source={d?.thumbnail_url}
+                        contentFit={"fill"}
+                        onLoad={() => { console.log("Img loaded", i); }}
+                      />
+                    )}
+                  {
+                    // (
+                    //   // Boolen algebra for rendering videos
+                    //   // (
+                    //   // (!isPlaying && i <= swipeCount.value + 4 && i >= swipeCount.value - 2)
+                    //   //   || (i <= swipeCount.value + 2 && i >= swipeCount.value - 2))
+                    //   // (swipeCountPrevious.value > swipeCount.value && i <= Math.max(loadedVideosTill.value, swipeCount.value + 2) && i >= Math.min(unloadedVideosFrom.value, swipeCount.value - 8))
+                    //   // || (swipeCountPrevious.value < swipeCount.value && i <= swipeCount.value + 2 && i >= swipeCount.value - 8)
+                    //   (isFirstLoad && i <= swipeCount.value + 4) || //for first loading while welcome screen is shown
+                    //   (i <= loadedVideosTill.value && i >= unloadedVideosFrom.value)
+                    //   || (i <= swipeCount.value + 2 && i >= swipeCount.value - 2)
+
+                    // ) && 
+                    <Video
+                      style={[styles.video, {
+                        height: mainHeight,
+                        width: mainWidth,
+                        // translate: { scale: (swipeCount.value == i) && isPlaying ? 1.5 : 1 }
+                      }]}
+                      source={{
+                        uri: d?.video_link,
+                      }}
+                      useNativeControls={false}
+                      resizeMode="cover"
+                      isLooping
+                      onLoadStart={(e) => {
+                        // setReelLoaded(true);
+                        videosLoadedRef.current.add(i);
+                        loadedVideosTill.value = Math.max(loadedVideosTill.value, i);
+                        console.log("Loading video", i);
+                      }}
+                      onLoad={(e) => {
+                        console.log("Video loaded..", i);
+                      }}
+                      shouldPlay={(swipeCount.value == i) && isPlaying}
+                    // onPlaybackStatusUpdate={() => ({ isPlaying: "Play" })}
+                    />
+                  }
+                </View>
+                {/*====================== pause icon for the reels ======================*/}
+                {!isPlaying && <View
+                  style={{
+                    position: "absolute",
+                    left: mainWidth / 2 - 25,
+                    top: mainHeight / 2 - 25,
+                  }}
+                >
+                  <FontAwesomeIcon
+                    size={70}
+                    icon={"fa-solid fa-play"}
+                    color={"#fff"}
+                    style={{ marginBottom: 20, opacity: 0.8 }}
                   />
-                  <View>
-                    <View style={{ flexDirection: "row", alignItems: "center" }}>
-                      <Text style={{ fontSize: 18, color: "#fff", fontWeight: 600, marginRight: 15 }}>{d?.first_name}</Text>
-                      <Text style={{
-                        borderWidth: 1,
-                        borderColor: "white",
-                        borderRadius: 4,
-                        backgroundColor: "#ffffff00",
-                        color: "white",
-                        padding: 5
-                      }}>Subscribe</Text>
+                </View>}
+
+                {/* ====================== some reel owners data ======================*/}
+                <View style={{
+                  height: "20%",
+                  width: "80%",
+                  left: 5,
+                  bottom: 0,
+                  position: "absolute"
+                }}>
+                  <View
+                    style={{
+                      left: 5,
+                      bottom: 50,
+                      position: "absolute"
+                    }}
+                  >
+                    <View style={{ borderRadius: 25, flexDirection: "row", alignItems: "center" }}>
+                      <Image source={d?.picture_url}
+                        style={{ height: 50, width: 50, borderRadius: 25, marginRight: 6 }}
+                      />
+                      <View>
+                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                          <Text style={{ fontSize: 18, color: "#fff", fontWeight: 600, marginRight: 15 }}>{d?.first_name}</Text>
+                          <Text style={{
+                            borderWidth: 1,
+                            borderColor: "white",
+                            borderRadius: 4,
+                            backgroundColor: "#ffffff00",
+                            color: "white",
+                            padding: 5
+                          }}>Subscribe</Text>
+                        </View>
+                        <Text style={{ color: "#fff", textDecorationLine: "underline" }}>@{d?.username}</Text>
+                      </View>
                     </View>
-                    <Text style={{ color: "#fff", textDecorationLine: "underline" }}>@{d?.username}</Text>
+                    <View>
+                      <Text style={{ color: "#fff", fontWeight: 400 }}>{d?.title}</Text>
+                    </View>
                   </View>
                 </View>
-                <View>
-                  <Text style={{ color: "#fff", fontWeight: 400 }}>{d?.title}</Text>
+
+                {/*======= some reels controls for liking commenting sharing etc ======*/}
+                <View style={{
+                  position: "absolute",
+                  bottom: 0,
+                  right: 0,
+                  width: 70,
+                  alignItems: 'center',
+                }}>
+                  <HeartComponent count={d?.upvote_count} liked={d?.upvoted} />
+                  <MsgComponent count={d?.comment_count} />
+                  <ShareComponent count={d?.share_count} />
+
+                  <FontAwesomeIcon
+                    size={40}
+                    icon={"fa-solid fa-ellipsis"}
+                    color={"#fff"}
+                    style={{ marginBottom: 30 }}
+                  />
                 </View>
-              </View>
-            </View>
-
-            {/*======= some reels controls for liking commenting sharing etc ======*/}
-            <View style={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              width: 70,
-              alignItems: 'center',
-            }}>
-              <HeartComponent count={d?.upvote_count} liked={d?.upvoted} />
-              <MsgComponent count={d?.comment_count} />
-              <ShareComponent count={d?.share_count} />
-
-              <FontAwesomeIcon
-                size={40}
-                icon={"fa-solid fa-ellipsis"}
-                color={"#fff"}
-                style={{ marginBottom: 30 }}
-              />
-            </View>
-          </Animated.View>);
+              </Animated.View>
+              :
+              <View style={[styles.containerForAnimation]}></View>
+          );
         })}
         {
           data?.length == 0 &&
@@ -473,7 +495,7 @@ const styles = StyleSheet.create({
   containerForAnimation: {
     flex: 0,
     // backgroundColor: '#fff',
-    height: "101.1%",
+    height: "101.03%",
     marginVertical: 3,
   },
   image: {
